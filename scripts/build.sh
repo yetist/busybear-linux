@@ -67,6 +67,7 @@ test -x build/dropbear-${DROPBEAR_VERSION}/dropbear || (
     cd build/dropbear-${DROPBEAR_VERSION}
     ./configure --host=${CROSS_COMPILE%-} --disable-zlib
     make -j$(nproc)
+    make scp
 )
 test -x build/linux-${LINUX_KERNEL_VERSION}/vmlinux || (
     cd build/linux-${LINUX_KERNEL_VERSION}
@@ -80,8 +81,10 @@ test -x build/linux-${LINUX_KERNEL_VERSION}/vmlinux || (
 test -d build/riscv-pk || mkdir build/riscv-pk
 test -x build/riscv-pk/bbl || (
     cd build/riscv-pk
+    CFLAGS="-I /usr/riscv64-linux-gnu/usr/include" \
     ../../src/riscv-pk/configure \
         --host=${CROSS_COMPILE%-} \
+	--with-arch=rv64gc \
         --with-payload=../linux-${LINUX_KERNEL_VERSION}/vmlinux
     make -j$(nproc)
 )
@@ -89,5 +92,4 @@ test -x build/riscv-pk/bbl || (
 #
 # create filesystem image
 #
-sudo env PATH=${PATH} UID=$(id -u) GID=$(id -g) \
-./scripts/image.sh
+sudo env PATH=${PATH} UID=$(id -u) GID=$(id -g) SYSROOT=riscv64-linux-gnu bash -x ./scripts/image.sh

@@ -63,18 +63,20 @@ copy_libs() {
     # copy busybox and dropbear
     cp build/busybox-${BUSYBOX_VERSION}/busybox mnt/bin/
     cp build/dropbear-${DROPBEAR_VERSION}/dropbear mnt/sbin/
+    cp build/dropbear-${DROPBEAR_VERSION}/scp mnt/bin/
+    cp build/dropbear-${DROPBEAR_VERSION}/dbclient mnt/bin/
 
     # copy libraries
-    if [ -d ${GCC_DIR}/sysroot/usr/lib${ARCH/riscv/}/${ABI}/ ]; then
+    if [ -d ${GCC_DIR}/${SYSROOT}/usr/lib${ARCH/riscv/}/${ABI}/ ]; then
         ABI_DIR=lib${ARCH/riscv/}/${ABI}
     else
         ABI_DIR=lib
     fi
     LDSO_NAME=ld-linux-${ARCH}-${ABI}.so.1
-    LDSO_TARGET=$(readlink ${GCC_DIR}/sysroot/lib/${LDSO_NAME})
+    LDSO_TARGET=$(readlink ${GCC_DIR}/${SYSROOT}/lib/${LDSO_NAME})
     mkdir -p mnt/${ABI_DIR}/
-    copy_libs $(dirname ${GCC_DIR}/sysroot/lib/${LDSO_TARGET})/ mnt/${ABI_DIR}/
-    copy_libs ${GCC_DIR}/sysroot/usr/${ABI_DIR}/ mnt/${ABI_DIR}/
+    copy_libs $(dirname ${GCC_DIR}/${SYSROOT}/lib/${LDSO_TARGET})/ mnt/${ABI_DIR}/
+    copy_libs ${GCC_DIR}/${SYSROOT}/usr/${ABI_DIR}/ mnt/${ABI_DIR}/
     if [ ! -e mnt/lib/${LDSO_NAME} ]; then
         ln -s /${ABI_DIR}/$(basename ${LDSO_TARGET}) mnt/lib/${LDSO_NAME}
     fi
